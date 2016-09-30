@@ -163,3 +163,34 @@ func VerifyString(id string, digits string) bool {
 	}
 	return Verify(id, ns)
 }
+
+// just verify, do not remove from storage
+func VerifySimple(id string, digits []byte) bool {
+	if digits == nil || len(digits) == 0 {
+		return false
+	}
+	reald := globalStore.Get(id, false)
+	if reald == nil {
+		return false
+	}
+	return bytes.Equal(digits, reald)
+}
+
+func VerifyStringSimple(id string, digits string) bool {
+	if digits == "" {
+		return false
+	}
+	ns := make([]byte, len(digits))
+	for i := range ns {
+		d := digits[i]
+		switch {
+		case '0' <= d && d <= '9':
+			ns[i] = d - '0'
+		case d == ' ' || d == ',':
+			// ignore
+		default:
+			return false
+		}
+	}
+	return VerifySimple(id, ns)
+}
